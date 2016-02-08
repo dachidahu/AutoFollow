@@ -70,6 +70,7 @@ namespace AutoFollow.Behaviors
             EventManager.UsedPortal += OnUsedPortal;
             EventManager.InviteRequest += OnInviteRequest;
             EventManager.LeavingGame += OnLeavingGame;
+            EventManager.GemUpgraded += OnGemUpgraded;
 
             Pulsator.OnPulse += Pulsator_OnPulse;
             LastActivated = DateTime.UtcNow;
@@ -103,6 +104,7 @@ namespace AutoFollow.Behaviors
             EventManager.UsedPortal -= OnUsedPortal;
             EventManager.InviteRequest -= OnInviteRequest;
             EventManager.LeavingGame -= OnLeavingGame;
+            EventManager.GemUpgraded -= OnGemUpgraded;
 
             Pulsator.OnPulse -= Pulsator_OnPulse;
             Log.Info("Stopped {0}", Name);
@@ -251,6 +253,11 @@ namespace AutoFollow.Behaviors
         }
 
         public virtual async Task<bool> OnLeavingGame(Message sender, EventData e)
+        {
+            return false;
+        }
+
+        public virtual async Task<bool> OnGemUpgraded(Message sender, EventData e)
         {
             return false;
         }

@@ -50,6 +50,16 @@ namespace Adventurer.Util
             }
         }
         
+
+        public static void BroadcastGemUpgradRequest()
+        {
+            var result = Me.SendToAll("GEMUPGRADED");
+            foreach (var pluginCommunicationResponse in result)
+            {
+                Logger.Debug("[PluginCommunicator][" + pluginCommunicationResponse.Plugin.Name + "] Response: " + pluginCommunicationResponse.Result);
+            }
+        }
+
         public static void AddToBlacklist(int actorId)
         {
             var result = Me.SendToAll("ADDBLACKLIST", actorId);

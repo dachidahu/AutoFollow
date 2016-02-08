@@ -1,6 +1,7 @@
 ﻿using System;
 using Zeta.Common;
 using Zeta.Common.Plugins;
+using AutoFollow.Events;
 
 namespace AutoFollow.Resources
 {
@@ -39,12 +40,17 @@ namespace AutoFollow.Resources
             }
         }
 
+  
+
         public static PluginCommunicationResponse Receive(IPlugin sender, string command, params object[] args)
         {
             switch (command)
             {
                 case "PING":
                     return Respond("PONG");
+                case "GEMUPGRADED":
+                    EventManager.FireEvent(new EventData(EventType.GemUpgraded));
+                    return Respond("DONE");
             }
             return Respond(PluginCommunicationResult.InvalidCommand);
         }

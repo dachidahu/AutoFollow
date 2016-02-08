@@ -64,6 +64,8 @@ namespace AutoFollow.Coroutines
             return false;
         }
 
+        
+
         /// <summary>
         /// Waits after changing world until all bots are nearby or the duration has elapsed.
         /// </summary>
@@ -98,7 +100,7 @@ namespace AutoFollow.Coroutines
                 if (obelisk != null)
                     await Movement.MoveTo(obelisk.Position);
 
-                await Coroutine.Sleep(30000);
+                await Coroutine.Sleep(3000);
                 return false;
             }
 
@@ -138,10 +140,10 @@ namespace AutoFollow.Coroutines
         /// </summary>
         public static async Task<bool> WaitForGameStartDelay()
         {
-            var time = ChangeMonitor.LastGameJoinedTime > ChangeMonitor.LastLoadedProfileTime 
+            var time = ChangeMonitor.LastGameJoinedTime > ChangeMonitor.LastLoadedProfileTime
                 ? ChangeMonitor.LastGameJoinedTime : ChangeMonitor.LastLoadedProfileTime;
 
-             StartAllowedTime = time.Add(TimeSpan.FromSeconds(Settings.Coordination.DelayAfterJoinGame));
+            StartAllowedTime = time.Add(TimeSpan.FromSeconds(Settings.Coordination.DelayAfterJoinGame));
 
             if (DateTime.UtcNow < StartAllowedTime && Player.IsInTown &&
                 !AutoFollow.CurrentParty.All(
@@ -172,10 +174,12 @@ namespace AutoFollow.Coroutines
         /// <summary>
         /// Teleport to player if possible.
         /// </summary>
-        public static async Task<bool> TeleportToPlayer(Message playerMessage)
+        public static async Task<bool> TeleportToPlayer(Message playerMessage, bool safeMode=true)
         {
-            if (!CanTeleportToPlayer(playerMessage))
+            if (!CanTeleportToPlayer(playerMessage)) 
+            {
                 return false;
+            }
 
             if (!_teleportTimer.IsRunning)
                 _teleportTimer.Restart();
@@ -188,7 +192,7 @@ namespace AutoFollow.Coroutines
                 Log.Debug("{0} is in a different world... waiting before teleport", playerMessage.HeroName);
                 return false;
             }
-                
+
             _teleportTimer.Stop();
 
             // Safety check.
@@ -196,8 +200,24 @@ namespace AutoFollow.Coroutines
             if (actor != null && actor.Distance <= 100f)
                 return false;
 
+
             Log.Warn("Teleporting to player {0} SameGame={1} SameWorld={2}",
                 playerMessage.HeroName, playerMessage.IsInSameGame, playerMessage.IsInSameWorld);
+
+            
+            if (!Player.IsInTown && safeMode)
+            {
+                Log.Warn("Using TownPortal!!!!! {0}", Player.HeroName);
+                ZetaDia.Me.UseTownPortal();
+
+                await Coroutine.Sleep(250);
+
+                while (ZetaDia.IsLoadingWorld || ZetaDia.Me.LoopingAnimationEndTime != 0)
+                {
+                    await Coroutine.Sleep(250);
+                    await Coroutine.Yield();
+                }
+            }
 
             ZetaDia.Me.TeleportToPlayerByIndex(playerMessage.Index);
 
@@ -208,21 +228,26 @@ namespace AutoFollow.Coroutines
                 await Coroutine.Sleep(250);
                 await Coroutine.Yield();
             }
-
+            Log.Warn("Teleport successfully.");
             return true;
         }
 
         private static bool CanTeleportToPlayer(Message playerMessage)
         {
-            if (!ZetaDia.IsInGame || ZetaDia.IsLoadingWorld)
+            if (!ZetaDia.IsInGame || ZetaDia.IsLoadingWorld) {
+                Log.Warn("Can't telport 1");
                 return false;
+            }
 
-            if (playerMessage.IsInSameWorld && playerMessage.Distance < 100f)
+            if (playerMessage.IsInSameWorld && playerMessage.Distance < 100f) {
+                Log.Warn("Can't telport 2");
                 return false;
+            }
 
-            if (playerMessage.IsInGreaterRift)
+            if (playerMessage.IsInGreaterRift && !(RiftHelper.RiftQuest.Step == RiftQuest.RiftStep.UrshiSpawned 
+                    || RiftHelper.RiftQuest.Step == RiftQuest.RiftStep.Completed || RiftHelper.RiftQuest.Step == RiftQuest.RiftStep.Cleared))
             {
-                Log.Debug("Can't teleport in greater rifts");
+                Log.Warn("Can't telport 3 {0}", RiftHelper.RiftQuest.Step);
                 return false;
             }
 
@@ -295,7 +320,7 @@ namespace AutoFollow.Coroutines
 
                     if(await Movement.MoveToAndInteract(portalUsed))
                         return true;
-                }                
+                }
             }
             return false;
         }
@@ -306,6 +331,9 @@ namespace AutoFollow.Coroutines
         public static async Task<bool> UseNearbyPortalWhenIdle()
         {
             if (!Player.IsIdle || Player.IsInTown)
+                return false;
+
+            if(RiftHelper.IsInGreaterRift)
                 return false;
 
             if (AutoFollow.CurrentLeader.IsInSameWorld && AutoFollow.CurrentLeader.Distance < 30f)

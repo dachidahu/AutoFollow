@@ -6,6 +6,7 @@ using Adventurer.Game.Actors;
 using Adventurer.Game.Exploration;
 using Adventurer.Game.Rift;
 using Adventurer.Settings;
+using Adventurer.Util;
 using Buddy.Coroutines;
 using Zeta.Bot;
 using Zeta.Bot.Coroutines;
@@ -217,6 +218,7 @@ namespace Adventurer.Coroutines.RiftCoroutines
             if (gemUpgradesLeft == 0)
             {
                 Logger.Debug("[UpgradeGems] Finished all upgrades, returning to town.");
+
                 State = States.Completed;
                 return false;
             }
@@ -339,6 +341,7 @@ namespace Adventurer.Coroutines.RiftCoroutines
 
         private bool Completed()
         {
+            PluginCommunicator.BroadcastGemUpgradRequest();
             DisablePulse();
             return true;
         }

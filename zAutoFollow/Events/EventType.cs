@@ -21,6 +21,7 @@ namespace AutoFollow.Events
         LeavingGame,
         GoingToTown,
         StartingTownRun,
+        GemUpgraded
     }
 }
 

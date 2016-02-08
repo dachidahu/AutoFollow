@@ -25,8 +25,12 @@ namespace AutoFollow.Coroutines
 
             if (RiftHelper.IsInRift && RiftHelper.RiftQuest.Step == RiftQuest.RiftStep.UrshiSpawned && RiftHelper.CurrentRift.IsCompleted)
             {
-                if (AutoFollow.CurrentLeader.Distance > 150f)
-                    await Coordination.TeleportToPlayer(AutoFollow.CurrentLeader);
+                if (AutoFollow.CurrentLeader.Distance > 20f)
+                {
+                    Log.Warn("Rift is Completed; teleport to the leader");
+                    await Coordination.TeleportToPlayer(AutoFollow.CurrentLeader, false);
+                    await Coroutine.Sleep(6000);
+                }
 
                 Log.Warn("Rift is Completed; requesting gem upgrade from other plugins.");
                 PluginCommunicator.BroadcastGemUpgradRequest();

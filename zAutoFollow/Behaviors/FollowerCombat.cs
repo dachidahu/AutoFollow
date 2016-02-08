@@ -232,6 +232,11 @@ namespace AutoFollow.Behaviors
             return false;
         }
 
+        public override async Task<bool> OnGemUpgraded(Message sender, EventData e)
+        {
+            return false;
+        }
+
         public override async Task<bool> OnEngagedElite(Message sender, EventData e)
         {
             if (e.IsLeaderEvent)

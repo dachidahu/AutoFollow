@@ -50,7 +50,7 @@ namespace AutoFollow.Events
         public static AsyncEvent<Message, EventData> LeavingGame;
         public static AsyncEvent<Message, EventData> GoingToTown;
         public static AsyncEvent<Message, EventData> StartingTownRun;
-
+        public static AsyncEvent<Message, EventData> GemUpgraded;
 
         public delegate void NormalEvent();
         public static event NormalEvent OnPulseOutOfGame = () => { };
@@ -288,6 +288,9 @@ namespace AutoFollow.Events
                     break;
                 case EventType.StartingTownRun:
                     Queue(StartingTownRun, e, m);
+                    break;
+                case EventType.GemUpgraded:
+                    Queue(GemUpgraded, e, m);
                     break;
             }
         }
