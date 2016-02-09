@@ -17,6 +17,7 @@ namespace AutoFollow.Coroutines
     {
         private static DateTime? _startedWaiting;
         private static DateTime _ignoreOtherBotsUntilTime;
+
         private static Stopwatch _teleportTimer = new Stopwatch();
 
         /// <summary>
@@ -84,6 +85,43 @@ namespace AutoFollow.Coroutines
             return false;
         }
 
+        public static async Task<bool> WaitForGemUpgraded()
+        {
+            if (RiftHelper.RiftQuest.Step == RiftQuest.RiftStep.UrshiSpawned) 
+            {
+                Log.Warn("Need to wait others upgrade gem.");
+                 if (Player.IsInTown)
+                 {
+                    Log.Warn("Go back to the rift.");
+                    await ReturnToGreaterRift();
+                    await Coroutine.Sleep(2000);
+                    return true;
+                 }
+                 else
+                 {
+                    Log.Warn("Ops, already in rift.");
+                    await Coroutine.Sleep(1000);
+                    return true;
+                 }
+                 Questing.UpgradeGems();
+
+            }
+            return false;
+        }
+
+        private static async Task<bool> ReturnToGreaterRift()
+        {
+            //ActorId: 191492, Type: Gizmo, Name: hearthPortal-46321, Distance2d: 6.981126, CollisionRadius: 8.316568, MinimapActive: 0, MinimapIconOverride: -1, MinimapDisableArrow: 0 
+            var returnPortal = Data.Portals.FirstOrDefault(p => p.ActorSnoId == 191492);
+            if (returnPortal != null)
+            {
+                Log.Info("Entering the return portal back to rift... ");
+                await Movement.MoveToAndInteract(returnPortal);
+            }
+            return true;
+        }
+
+
         /// <summary>
         /// Prevents a greater rift from being started until all bots are ready.
         /// </summary>
@@ -101,7 +139,7 @@ namespace AutoFollow.Coroutines
                     await Movement.MoveTo(obelisk.Position);
 
                 await Coroutine.Sleep(3000);
-                return false;
+                return true;
             }
 
             if (_ignoreOtherBotsUntilTime > DateTime.UtcNow)
@@ -197,8 +235,12 @@ namespace AutoFollow.Coroutines
 
             // Safety check.
             var actor = Data.GetPlayerActor(playerMessage);
+
             if (actor != null && actor.Distance <= 100f)
+            {
+
                 return false;
+            }
 
 
             Log.Warn("Teleporting to player {0} SameGame={1} SameWorld={2}",
@@ -308,6 +350,8 @@ namespace AutoFollow.Coroutines
         /// <returns></returns>
         public async static Task<bool> FollowLeaderThroughPortal()
         {
+            if (RiftHelper.IsInGreaterRift)
+                return false;
             var leaderWasLastInMyCurrentWorld = AutoFollow.CurrentLeader.PreviousWorldSnoId == Player.CurrentWorldSnoId;
             var lastWorldPosition = AutoFollow.CurrentLeader.LastPositionInPreviousWorld;
             if (leaderWasLastInMyCurrentWorld)
@@ -318,7 +362,7 @@ namespace AutoFollow.Coroutines
                     Log.Info("Leader {0} appears to have used this portal here: '{1}' Dist={2}. Following.",
                         AutoFollow.CurrentLeader.HeroName, portalUsed.Name, portalUsed.Distance);
 
-                    if(await Movement.MoveToAndInteract(portalUsed))
+                    if (await Movement.MoveToAndInteract(portalUsed))
                         return true;
                 }
             }

@@ -285,7 +285,7 @@ namespace AutoFollow.Coroutines
         /// <param name="range">the closeness required</param>
         public static async Task<bool> MoveToPlayer(Message player, float range)
         {
-            if (!ZetaDia.IsInGame || !player.IsInSameGame || !player.IsInSameWorld)
+            if (!ZetaDia.IsInGame || !player.IsInSameGame || !player.IsInSameWorld || player.IsInGreaterRift)
                 return false;
 
             if (player.Distance > range)

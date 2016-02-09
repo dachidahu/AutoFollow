@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,16 +20,16 @@ namespace AutoFollow.Coroutines
         /// </summary>
         public static async Task<bool> UpgradeGems()
         {
-            if (DateTime.UtcNow.Subtract(LastRequestedGemUpgrade).TotalMinutes < 1)
+            if (DateTime.UtcNow.Subtract(LastRequestedGemUpgrade).TotalSeconds < 15)
                 return false;
 
             if (RiftHelper.IsInRift && RiftHelper.RiftQuest.Step == RiftQuest.RiftStep.UrshiSpawned && RiftHelper.CurrentRift.IsCompleted)
             {
-                if (AutoFollow.CurrentLeader.Distance > 20f)
+                if (AutoFollow.CurrentLeader.Distance > 30f)
                 {
-                    Log.Warn("Rift is Completed; teleport to the leader");
+                    Log.Warn("Rift is Completed; telport to the leader");
                     await Coordination.TeleportToPlayer(AutoFollow.CurrentLeader, false);
-                    await Coroutine.Sleep(6000);
+                    await Coroutine.Sleep(3000);
                 }
 
                 Log.Warn("Rift is Completed; requesting gem upgrade from other plugins.");

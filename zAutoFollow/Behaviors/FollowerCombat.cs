@@ -234,6 +234,7 @@ namespace AutoFollow.Behaviors
 
         public override async Task<bool> OnGemUpgraded(Message sender, EventData e)
         {
+            Log.Info("we are in the function of OnGemUpgraded");
             return false;
         }
 

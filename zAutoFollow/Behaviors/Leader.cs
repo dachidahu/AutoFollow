@@ -88,6 +88,13 @@ namespace AutoFollow.Behaviors
             // Returning True => go to next tick immediately, execution starts again from top of the tree.
             // Returning False => allow execution to continue to lower hooks. Such as profiles, Adventurer.
 
+            if (await Coordination.WaitForGemUpgraded()) 
+            {
+                Log.Info("Leader is going to upgrade gem.");
+                return false;            
+            }
+
+
             if (!AutoFollow.CurrentLeader.IsValid)
                 return false;
 
