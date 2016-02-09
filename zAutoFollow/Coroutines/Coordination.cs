@@ -350,7 +350,7 @@ namespace AutoFollow.Coroutines
         /// <returns></returns>
         public async static Task<bool> FollowLeaderThroughPortal()
         {
-            if (RiftHelper.IsInGreaterRift)
+            if (RiftHelper.IsInGreaterRift || RiftHelper.RiftQuest.Step == RiftQuest.RiftStep.UrshiSpawned)
                 return false;
             var leaderWasLastInMyCurrentWorld = AutoFollow.CurrentLeader.PreviousWorldSnoId == Player.CurrentWorldSnoId;
             var lastWorldPosition = AutoFollow.CurrentLeader.LastPositionInPreviousWorld;

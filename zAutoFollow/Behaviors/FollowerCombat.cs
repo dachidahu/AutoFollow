@@ -117,8 +117,8 @@ namespace AutoFollow.Behaviors
             if (await Questing.ReturnToGreaterRift())
                 return true;
 
-            if (await Movement.MoveToGreaterRiftExitPortal())
-                return true;
+            //if (await Movement.MoveToGreaterRiftExitPortal())
+            //    return true;
 
             return false;
         }
@@ -154,7 +154,11 @@ namespace AutoFollow.Behaviors
         //}
 
         public override async Task<bool> OnUsedPortal(Message sender, EventData e)
-        {            
+        {
+            if (Player.IsIsInGreaterRift)
+            {
+                return false;
+            }
             if (e.IsLeaderEvent)
             {
                 var portal = e.NewValue as Interactable;
